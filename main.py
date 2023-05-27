@@ -6,6 +6,7 @@ SCREEN_HEIGHT = 600
 RUNNING = True
 FPS = 144
 
+pygame.display.set_caption('Show Text')
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
@@ -13,28 +14,52 @@ gravity = 1000
 player_size = 50
 dt = 0
 
+font = pygame.font.Font('freesansbold.ttf', 32)
+text = font.render('Colliding', True, (0, 255, 0), (0, 0, 128))
+
 class Player:
-    def __init__(self, x,y, size) -> None:
+    def __init__(self, x,y, size):
         self.x = int(x)
         self.y = int(y)
         self.size = size
 
+class Obstacle:
+    def __init__(self, x, y, width, height):
+        self.x = int(x)
+        self.y = int(y)
+        self.width = width
+        self.height = height
+    
+    def is_colliding(self, player):
+        if player.x + player.size > self.x and player.x < self.x + self.width:
+            if player.y + player.size > self.y and player.y < self.y + self.height:
+                return True
+        return False
+
 player = Player(SCREEN_WIDTH // 8, SCREEN_HEIGHT // 2, 40)
 
-obstacles = []
+obstacle = Obstacle(x = player.x+(player.size/2), y= player.y, width = player.size, height = SCREEN_HEIGHT)
 
 while RUNNING:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             RUNNING = False
-    screen.fill((0, 0, 0))
-    
+    screen.fill((255,255,255))
+
+    if obstacle.is_colliding(player):
+        screen.blit(text, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
     
     keys = pygame.key.get_pressed()
-    pygame.draw.rect(screen, (255, 255, 255), (player.x, player.y, player.size, player.size))
+    
+    #draws obstacle
+    pygame.draw.rect(screen, (255,0,0), (obstacle.x, obstacle.y, obstacle.width, obstacle.height))
+    
+    #draws player
+    pygame.draw.rect(screen, (0,0,0), (player.x, player.y, player.size, player.size))
     
     #applies gravity to player
     player.y += gravity * dt
+    
     
     #stops player from going off screen
     if player.y > SCREEN_HEIGHT - player.size:
@@ -49,7 +74,8 @@ while RUNNING:
         RUNNING = False
     
     #print player position [DEBUG]
-    print(player.x, player.y)
+    # print(player.x, player.y)
+    
     
     
     pygame.display.flip()

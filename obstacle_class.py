@@ -1,5 +1,5 @@
 class Obstacle:
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, height, width=20):
         self.x = int(x)
         self.y = int(y)
         self.width = width
@@ -10,3 +10,6 @@ class Obstacle:
             if player.y + player.size > self.y and player.y < self.y + self.height:
                 return True
         return False
+
+    def move_obstacle(self, moving_speed):
+        self.x -= moving_speed

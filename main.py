@@ -1,49 +1,61 @@
 from player_class import Player
 from obstacle_class import Obstacle
 import pygame
-
 from random import randint
 
+# Initialize pygame
 pygame.init()
+
+# Screen dimensions and game settings
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 RUNNING = True
 FPS = 144
 
+# Constants for gravity and player movement
 GRAVITY_CONST = 1500
 PLAYER_SPEED = 1800
-obstacle_interval = 0
 
+# Variables for obstacle generation
+obstacle_interval = 0
 obstacles_list = []
 
+# Set up the display
 pygame.display.set_caption('Show Text')
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
+# Player setup
 gravity = GRAVITY_CONST
-player_size = 50
-dt = 1 / FPS
+player = Player(SCREEN_WIDTH // 8, SCREEN_HEIGHT // 2, 40)
 
+# Font for collision text
 font = pygame.font.Font('freesansbold.ttf', 32)
 text = font.render('Colliding', True, (0, 255, 0), (0, 0, 128))
 
-player = Player(SCREEN_WIDTH // 8, SCREEN_HEIGHT // 2, 40)
+# Calculate time increment per frame
+dt = 1 / FPS
 
+# Game loop
 while RUNNING:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             RUNNING = False
+
+    # Increase obstacle interval counter
     obstacle_interval += 1
 
+    # Clear the screen
     screen.fill((180, 180, 180))
 
+    # Check keyboard input
     key_pressed = pygame.key.get_pressed()
 
-    # draws player
+    # Draw the player
     pygame.draw.rect(screen, (0, 0, 0), (player.x,
                      player.y, player.size, player.size))
 
-    # modifies gravity and player position based on input
+    # Modify gravity and player position based on input
     if key_pressed[pygame.K_SPACE]:
         gravity = 0
         if player.y > 0:
@@ -54,47 +66,45 @@ while RUNNING:
         gravity = GRAVITY_CONST
         player.y += gravity * dt
 
-    # stops player from going off screen
+    # Stop player from going off screen
     player.y = max(0 - player.size, min(player.y, SCREEN_HEIGHT - player.size))
 
-    # closes game if Q key is pressed
+    # Close game if Q key is pressed
     if key_pressed[pygame.K_q]:
         RUNNING = False
 
-    if obstacle_interval == FPS/2:
+    # Create obstacle at a precise timing
+    if obstacle_interval == FPS // 2:
         new_obstacle = Obstacle(
-            x=SCREEN_WIDTH + 5,
-            y=randint(0, SCREEN_HEIGHT),
-            height=SCREEN_HEIGHT
-        )
+            x=SCREEN_WIDTH + 5, y=randint(0, SCREEN_HEIGHT), height=SCREEN_HEIGHT)
         obstacles_list.append(new_obstacle)
-        # print whenever a new obstacle is created
-        print("obstacle created")
-        obstacle_interval = 0
+        obstacle_interval = 0  # Reset the interval counter
 
     for obstacle in obstacles_list:
-        # draws obstacle
-        obstacle.move_obstacle(5)
+        # Move and draw the obstacle
+        obstacle.move_obstacle(7)
         pygame.draw.rect(screen, (255, 0, 0), (obstacle.x,
-                                               obstacle.y, obstacle.width, obstacle.height))
+                         obstacle.y, obstacle.width, obstacle.height))
+
+        # Check for collision with player
         if obstacle.is_colliding(player):
             screen.blit(text, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
 
-        if obstacle.x < 0-obstacle.width:
-            obstacles_list.pop(0)
+        # Remove obstacles that are off-screen
+        if obstacle.x < 0 - obstacle.width:
+            obstacles_list.remove(obstacle)
 
     # [DEBUG]
-    # print player position
+    # Print player position, gravity, and obstacle interval
     # print(player.x, player.y)
-    # print gravity applied to player
     # print(gravity)
-    # print obstacle_interval
     # print(obstacle_interval)
 
+    # Update the display
     pygame.display.flip()
-    dt = clock.tick(FPS) / 1000
 
-    # FPS
+    # Control the frame rate
     clock.tick(FPS)
 
+# Quit the game
 pygame.quit()

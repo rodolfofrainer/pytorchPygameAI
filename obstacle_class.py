@@ -1,3 +1,6 @@
+from constants import *
+
+
 class Obstacle:
     def __init__(self, x, y, height, width=20):
         self.x = int(x)
@@ -13,3 +16,6 @@ class Obstacle:
 
     def move_obstacle(self, moving_speed):
         self.x -= moving_speed
+
+    def create_mirror_obstacle(self):
+        return Obstacle(self.x, self.y - SCREEN_HEIGHT - 150, self.height, self.width)

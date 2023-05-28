@@ -2,22 +2,15 @@ from player_class import Player
 from obstacle_class import Obstacle
 import pygame
 from random import randint
+from constants import *
 
 # Initialize pygame
 pygame.init()
 
-# Screen dimensions and game settings
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-RUNNING = True
-FPS = 144
-
-# Constants for gravity and player movement
-GRAVITY_CONST = 1500
-PLAYER_SPEED = 1800
 
 # Variables for obstacle generation
-obstacle_interval = 0
+obstacle_interval = FPS * 1
+obstacle_interval_counter = 0
 obstacles_list = []
 
 # Set up the display
@@ -43,7 +36,7 @@ while RUNNING:
             RUNNING = False
 
     # Increase obstacle interval counter
-    obstacle_interval += 1
+    obstacle_interval_counter += 1
 
     # Clear the screen
     screen.fill((180, 180, 180))
@@ -74,15 +67,20 @@ while RUNNING:
         RUNNING = False
 
     # Create obstacle at a precise timing
-    if obstacle_interval == FPS // 2:
+    if obstacle_interval_counter >= obstacle_interval:
         new_obstacle = Obstacle(
-            x=SCREEN_WIDTH + 5, y=randint(0, SCREEN_HEIGHT), height=SCREEN_HEIGHT)
+            x=SCREEN_WIDTH + 5, y=randint(80, SCREEN_HEIGHT), height=SCREEN_HEIGHT)
         obstacles_list.append(new_obstacle)
-        obstacle_interval = 0  # Reset the interval counter
+
+        # Create a mirror obstacle with a 60-pixel window
+        mirror_obstacle = new_obstacle.create_mirror_obstacle()
+        obstacles_list.append(mirror_obstacle)
+
+        obstacle_interval_counter = 0  # Reset the interval counter
 
     for obstacle in obstacles_list:
         # Move and draw the obstacle
-        obstacle.move_obstacle(7)
+        obstacle.move_obstacle(2)
         pygame.draw.rect(screen, (255, 0, 0), (obstacle.x,
                          obstacle.y, obstacle.width, obstacle.height))
 
@@ -98,7 +96,7 @@ while RUNNING:
     # Print player position, gravity, and obstacle interval
     # print(player.x, player.y)
     # print(gravity)
-    # print(obstacle_interval)
+    # print(obstacle_interval_counter)
 
     # Update the display
     pygame.display.flip()

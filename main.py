@@ -1,3 +1,6 @@
+from player_class import Player
+from obstacle_class import Obstacle
+
 import pygame
 
 pygame.init()
@@ -17,67 +20,51 @@ dt = 0
 font = pygame.font.Font('freesansbold.ttf', 32)
 text = font.render('Colliding', True, (0, 255, 0), (0, 0, 128))
 
-class Player:
-    def __init__(self, x,y, size):
-        self.x = int(x)
-        self.y = int(y)
-        self.size = size
-
-class Obstacle:
-    def __init__(self, x, y, width, height):
-        self.x = int(x)
-        self.y = int(y)
-        self.width = width
-        self.height = height
-    
-    def is_colliding(self, player):
-        if player.x + player.size > self.x and player.x < self.x + self.width:
-            if player.y + player.size > self.y and player.y < self.y + self.height:
-                return True
-        return False
-
 player = Player(SCREEN_WIDTH // 8, SCREEN_HEIGHT // 2, 40)
 
-obstacle = Obstacle(x = player.x+(player.size/2), y= player.y, width = player.size, height = SCREEN_HEIGHT)
+obstacle = Obstacle(x=player.x+(player.size/2), y=player.y,
+                    width=player.size, height=SCREEN_HEIGHT)
 
 while RUNNING:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             RUNNING = False
-    screen.fill((255,255,255))
+    screen.fill((255, 255, 255))
 
     if obstacle.is_colliding(player):
         screen.blit(text, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-    
-    keys = pygame.key.get_pressed()
-    
-    #draws obstacle
-    pygame.draw.rect(screen, (255,0,0), (obstacle.x, obstacle.y, obstacle.width, obstacle.height))
-    
-    #draws player
-    pygame.draw.rect(screen, (0,0,0), (player.x, player.y, player.size, player.size))
-    
-    #applies gravity to player
+
+    key_pressed = pygame.key.get_pressed()
+
+    # draws obstacle
+    pygame.draw.rect(screen, (255, 0, 0), (obstacle.x,
+                     obstacle.y, obstacle.width, obstacle.height))
+
+    # draws player
+    pygame.draw.rect(screen, (0, 0, 0), (player.x,
+                     player.y, player.size, player.size))
+
+    # applies gravity to player
     player.y += gravity * dt
-    
-    
-    #stops player from going off screen
+
+    # stops player from going off screen
+    if (player.y - (3000 * dt)) < 0:
+        player.y = 0 - player.size
     if player.y > SCREEN_HEIGHT - player.size:
         player.y = SCREEN_HEIGHT - player.size
     if player.y < 0:
         player.y = 0 + player.size/2
-    
-    #list of commands
-    if keys[pygame.K_SPACE]:
+
+    # list of commands
+    if key_pressed[pygame.K_SPACE]:
+        gravity = 0
         player.y -= 3000 * dt
-    if keys[pygame.K_q]:
+    if key_pressed[pygame.K_q]:
         RUNNING = False
-    
-    #print player position [DEBUG]
-    # print(player.x, player.y)
-    
-    
-    
+
+    # print player position [DEBUG]
+    print(player.x, player.y)
+
     pygame.display.flip()
     dt = clock.tick(FPS) / 1000
     clock.tick(60)

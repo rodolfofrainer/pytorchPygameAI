@@ -47,18 +47,23 @@ while RUNNING:
 
     # Modify player acceleration and velocity based on input
     if key_pressed[pygame.K_SPACE]:
-        player_acceleration = - PLAYER_ACCELERATION
+        player_acceleration = -PLAYER_ACCELERATION
     else:
         player_acceleration = PLAYER_ACCELERATION
 
     player.velocity += player_acceleration * dt
+
+    # Apply velocity cap to player's movement
+    max_velocity = PLAYER_ACCELERATION
+    player.velocity = max(-max_velocity, min(player.velocity, max_velocity))
+
     player.y += player.velocity * dt
 
     # Apply gravity to the player's velocity
     player.velocity += gravity * dt
 
-    # Stop player from going off screen
-    player.y = max(0 - player.size, min(player.y, SCREEN_HEIGHT - player.size))
+    # Cap player's y coordinate to prevent it from going negative or outside the screen
+    player.y = max(0, min(player.y, SCREEN_HEIGHT - player.size))
 
     # Close game if Q key is pressed
     if key_pressed[pygame.K_q]:

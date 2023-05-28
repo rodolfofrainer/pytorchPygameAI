@@ -18,4 +18,4 @@ class Obstacle:
         self.x -= moving_speed
 
     def create_mirror_obstacle(self):
-        return Obstacle(self.x, self.y - SCREEN_HEIGHT - 150, self.height, self.width)
+        return Obstacle(self.x, self.y - SCREEN_HEIGHT - 200, self.height, self.width)

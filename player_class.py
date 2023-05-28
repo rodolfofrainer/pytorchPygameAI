@@ -3,3 +3,4 @@ class Player:
         self.x = int(x)
         self.y = int(y)
         self.size = size
+        self.velocity = 0

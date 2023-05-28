@@ -5,5 +5,5 @@ RUNNING = True
 FPS = 144
 
 # Constants for gravity and player movement
-GRAVITY_CONST = 500
-PLAYER_SPEED = 800
+GRAVITY_CONST = 9.8
+PLAYER_ACCELERATION = 1000

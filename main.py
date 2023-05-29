@@ -7,6 +7,8 @@ from constants import *
 # Initialize pygame
 pygame.init()
 
+# Needs reset, reward, play(action), game_iteration
+
 # Set up the display
 pygame.display.set_caption('Show Text')
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

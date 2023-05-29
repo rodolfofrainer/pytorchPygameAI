@@ -7,3 +7,4 @@ FPS = 144
 # Constants for gravity and player movement
 GRAVITY_CONST = 9.8
 PLAYER_ACCELERATION = 1000
+PLAYER_MAX_VELOCITY = 500

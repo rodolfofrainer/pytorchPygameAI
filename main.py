@@ -51,12 +51,19 @@ while RUNNING:
     else:
         player_acceleration = PLAYER_ACCELERATION
 
+    # Update player velocity using acceleration
     player.velocity += player_acceleration * dt
 
     # Apply velocity cap to player's movement
-    max_velocity = PLAYER_ACCELERATION
-    player.velocity = max(-max_velocity, min(player.velocity, max_velocity))
+    max_velocity = PLAYER_MAX_VELOCITY
+    min_velocity = -PLAYER_MAX_VELOCITY
 
+    if player.velocity > max_velocity:
+        player.velocity = max_velocity
+    elif player.velocity < min_velocity:
+        player.velocity = min_velocity
+
+    # Update player position using velocity
     player.y += player.velocity * dt
 
     # Apply gravity to the player's velocity
@@ -72,7 +79,7 @@ while RUNNING:
     # Create obstacle at a precise timing
     if obstacle_interval_counter >= obstacle_interval:
         new_obstacle = Obstacle(
-            x=SCREEN_WIDTH + 5, y=randint(80, SCREEN_HEIGHT), height=SCREEN_HEIGHT)
+            x=SCREEN_WIDTH+20 + 5, y=randint(80, SCREEN_HEIGHT), height=SCREEN_HEIGHT)
         obstacles_list.append(new_obstacle)
 
         # Create a mirror obstacle with a 200-pixel window

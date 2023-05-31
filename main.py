@@ -47,6 +47,11 @@ while RUNNING:
     # Check keyboard input
     key_pressed = pygame.key.get_pressed()
 
+    if player.y == 0:
+        player.velocity = 0
+    elif player.y == SCREEN_HEIGHT - player.size:
+        player.velocity = 0
+
     # Modify player acceleration and velocity based on input
     if key_pressed[pygame.K_SPACE]:
         player_acceleration = -PLAYER_ACCELERATION
@@ -59,11 +64,6 @@ while RUNNING:
     # Apply velocity cap to player's movement
     max_velocity = PLAYER_MAX_VELOCITY
     min_velocity = -PLAYER_MAX_VELOCITY
-
-    if player.velocity > max_velocity:
-        player.velocity = max_velocity
-    elif player.velocity < min_velocity:
-        player.velocity = min_velocity
 
     # Update player position using velocity
     player.y += player.velocity * dt

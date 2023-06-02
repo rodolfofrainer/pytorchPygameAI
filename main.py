@@ -1,4 +1,8 @@
-from game import game_start
+from game import GameStart
+import pygame
+
+
+pygame.init()
 
 if __name__ == "__main__":
-    game_start()
+    GameStart()

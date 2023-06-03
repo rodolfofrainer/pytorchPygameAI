@@ -9,11 +9,11 @@ font = pygame.font.Font('freesansbold.ttf', 32)
 # font = pygame.font.SysFont('arial', 25)
 
 
-# reset
-# reward
-# play(action)
-# game_iteration
-# is_collision
+# reset *
+# reward *
+# play(action) *
+# game_iteration *
+# is_collision *
 
 class Direction(Enum):
     RIGHT = 1

@@ -7,111 +7,125 @@ from constants import *
 
 class GameStart():
     def __init__(self):
-        self.w = SCREEN_WIDTH
-        self.h = SCREEN_HEIGHT
+        pygame.init()
         # init display
-        self.display = pygame.display.set_mode((self.w, self.h))
+        self.display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Flapping cube')
         self.clock = pygame.time.Clock()
-        self.reset()
+
+        # Game iteration control
+        self.dt = 1 / FPS
+        self.frame_iteration = 0
+
+        # Player setup
         self.player = Player(SCREEN_WIDTH // 8, SCREEN_HEIGHT // 2, 40)
+        self.gravity = GRAVITY_CONST
+        self.player_acceleration = 0
+
         # Variables for obstacle generation
         self.obstacle_interval = FPS * 1
         self.obstacle_interval_counter = 0
         self.obstacles_list = []
-        # Player setup
-        self.gravity = GRAVITY_CONST
-        self.player_acceleration = 0
-        # Calculate time increment per frame
-        self.dt = 1 / FPS
+
         # Font for collision text
         self.font = pygame.font.Font('freesansbold.ttf', 32)
-        self.text = self.font.render(
-            'Colliding', True, (0, 255, 0), (0, 0, 128))
-        self.reward = 0
+        self.score = 0
 
-    # Game loop
-    def reset(self):
+    def _move(self, action):
+        if action:
+            self.player.velocity = -PLAYER_MAX_VELOCITY
+
+    def game_reset(self):
+        # Resets game when player collides with obstacle
         self.player = Player(SCREEN_WIDTH // 8, SCREEN_HEIGHT // 2, 40)
-        self.reward = 0
+        self.score = 0
+        self.obstacles_list = []
+        self.frame_iteration = 0
 
-    def run_game(self):
-        # Event handling
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                RUNNING = False
+    def update_score(self):
+        if self.frame_iteration % 100 == 0:
+            self.score += 1
 
-        # Increase obstacle interval counter
-        obstacle_interval_counter += 1
+    def run_game(self, action=None):
+        while True:
+            self.frame_iteration += 1
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
 
-        # Clear the screen
-        self.display.fill((180, 180, 180))
+             # Check keyboard input
+            key_pressed = pygame.key.get_pressed()
 
-        # Check keyboard input
-        key_pressed = pygame.key.get_pressed()
+            # Close game if Q key is pressed
+            if key_pressed[pygame.K_q]:
+                pygame.quit()
+                quit()
 
-        if self.player.y == 0:
-            self.player.velocity = 0
-        elif self.player.y == SCREEN_HEIGHT - self.player.size:
-            self.player.velocity = 0
+            if key_pressed[pygame.K_SPACE]:
+                self._move(1)
 
-        # Modify player acceleration and velocity based on input
-        if key_pressed[pygame.K_SPACE]:
-            player_acceleration = -PLAYER_ACCELERATION
-        else:
-            player_acceleration = PLAYER_ACCELERATION
+            # Increase obstacle interval counter
+            self.obstacle_interval_counter += 1
+            self.update_score()
 
-        # Update player velocity using acceleration
-        self.player.velocity += player_acceleration * self.dt
+            # Clear the screen
+            self.display.fill((180, 180, 180))
 
-        # Update player position using velocity
-        self.player.y += self.player.velocity * self.dt
+            self._move(action)
 
-        # Apply gravity to the player's velocity
-        self.player.velocity += self.gravity * self.dt
+            # Player movement
+            # Cap player's velocity to prevent it from going negative or exceeding the max velocity
+            if self.player.y == 0:
+                self.player.velocity = 0
+            elif self.player.y == SCREEN_HEIGHT - self.player.size:
+                self.player.velocity = 0
+            # Update player velocity using acceleration
+            self.player.velocity += self.player_acceleration * self.dt
+            # Update player position using velocity
+            self.player.y += self.player.velocity * self.dt
+            # Apply gravity to the player's velocity
+            self.player.velocity += self.gravity * self.dt
+            # Cap player's y coordinate to prevent it from going negative or outside the screen
+            self.player.y = max(
+                0, min(self.player.y, SCREEN_HEIGHT - self.player.size))
 
-        # Cap player's y coordinate to prevent it from going negative or outside the screen
-        self.player.y = max(
-            0, min(self.player.y, SCREEN_HEIGHT - self.player.size))
+            # Create obstacle at a precise timing
+            if self.obstacle_interval_counter >= self.obstacle_interval:
+                new_obstacle = Obstacle(
+                    x=SCREEN_WIDTH+20 + 5, y=randint(80, SCREEN_HEIGHT), height=SCREEN_HEIGHT)
+                self.obstacles_list.append(new_obstacle)
 
-        # Close game if Q key is pressed
-        if key_pressed[pygame.K_q]:
-            RUNNING = False
+                # Create a mirror obstacle with a 200-pixel window
+                mirror_obstacle = new_obstacle.create_mirror_obstacle()
+                self.obstacles_list.append(mirror_obstacle)
 
-        # Create obstacle at a precise timing
-        if obstacle_interval_counter >= self.obstacle_interval:
-            new_obstacle = Obstacle(
-                x=SCREEN_WIDTH+20 + 5, y=randint(80, SCREEN_HEIGHT), height=SCREEN_HEIGHT)
-            self.obstacles_list.append(new_obstacle)
+                self.obstacle_interval_counter = 0  # Reset the interval counter
 
-            # Create a mirror obstacle with a 200-pixel window
-            mirror_obstacle = new_obstacle.create_mirror_obstacle()
-            self.obstacles_list.append(mirror_obstacle)
+            # Obstacle movement and collision detection
+            for obstacle in self.obstacles_list:
+                if obstacle.x-obstacle.width < self.player.x-self.player.size:
+                    self.score += 10
+                obstacle.move_obstacle(2)
+                pygame.draw.rect(self.display, (255, 0, 0), (obstacle.x,
+                                 obstacle.y, obstacle.width, obstacle.height))
+                if obstacle.x < 0 - obstacle.width:
+                    self.obstacles_list.remove(obstacle)
 
-            obstacle_interval_counter = 0  # Reset the interval counter
+            # Draw the player
+            pygame.draw.rect(self.display, (0, 0, 0), (self.player.x,
+                             self.player.y, self.player.size, self.player.size))
 
-        # Obstacle movement and collision detection
-        for obstacle in self.obstacles_list:
-            obstacle.move_obstacle(2)
-            pygame.draw.rect(self.display, (255, 0, 0), (obstacle.x,
-                             obstacle.y, obstacle.width, obstacle.height))
+            for obstacle in self.obstacles_list:
+                if obstacle.is_colliding(self.player):
+                    self.game_reset()
 
-            if obstacle.is_colliding(self.player):
-                self.display.blit(
-                    self.text, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+            score_text = self.font.render(
+                f"Score: {self.score}", True, (0, 0, 0))
+            self.display.blit(score_text, (10, 10))
 
-            if obstacle.x < 0 - obstacle.width:
-                self.obstacles_list.remove(obstacle)
+            # Update the display
+            pygame.display.flip()
 
-        # Draw the player
-        pygame.draw.rect(self.display, (0, 0, 0), (self.player.x,
-                         self.layer.y, self.player.size, self.player.size))
-
-        # Update the display
-        pygame.display.flip()
-
-        # Control the frame rate
-        self.clock.tick(FPS)
-
-    # Quit the game
-    pygame.quit()
+            # Control the frame rate
+            self.clock.tick(FPS)

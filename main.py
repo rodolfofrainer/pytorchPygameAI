@@ -2,7 +2,6 @@ from game import GameStart
 import pygame
 
 
-pygame.init()
-
-if __name__ == "__main__":
-    GameStart()
+if __name__ == '__main__':
+    game = GameStart()
+    game.run_game()

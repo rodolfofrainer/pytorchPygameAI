@@ -1,7 +1,15 @@
 from constants import *
 
 
-class Obstacle:
+class PlayerClass:
+    def __init__(self, x, y, size):
+        self.x = int(x)
+        self.y = int(y)
+        self.size = size
+        self.velocity = 0
+
+
+class ObstacleClass:
     def __init__(self, x, y, height, width=20):
         self.x = int(x)
         self.y = int(y)
@@ -18,4 +26,4 @@ class Obstacle:
         self.x -= moving_speed
 
     def create_mirror_obstacle(self):
-        return Obstacle(self.x, self.y - SCREEN_HEIGHT - 200, self.height, self.width)
+        return ObstacleClass(self.x, self.y - SCREEN_HEIGHT - 200, self.height, self.width)
